@@ -1,20 +1,22 @@
 Meteor.methods({
-    getlastpost: function(url) {
-        request({
-            url: url,
+    getlastpost: function(url,url2,url3,url4,url5) {
+        var array=[url,url2,url3,url4,url5];
+        for (var i =0;i<array.length;i++){
+            request({
+            url: array[i],
             header: {
                 "User-Agent": "request"
             }
-
-        }, Meteor.bindEnvironment(function(error, response, data) {
+        }, 
+        Meteor.bindEnvironment(function(error, response, data) {
             if (!error && response.statusCode == 200) {
-
                 var debut = data.indexOf("sharedData") + 13;
                 var fin = data.indexOf(";<");
                 var chaine = data.substring(debut, fin);
                 var jsonObj = JSON.parse(chaine);
                 var i = 0;
-                for (i = 0; i < jsonObj.entry_data.ProfilePage[0].user.media.nodes.length; i++) {
+                var arr=[];
+                for (i = 0; i < 5; i++) {
                     var lien = 'https://www.instagram.com/p/' + jsonObj.entry_data.ProfilePage[0].user.media.nodes[i].code; //jsonObj.entry_data.ProfilePage[0].user.nodes[i].link;
                     var nom = jsonObj.entry_data.ProfilePage[0].user.media.nodes[i].code; //lien.split("/")[4];
                     var curDate = Date.now();
@@ -29,42 +31,47 @@ Meteor.methods({
                     var currenttime = (new Date).getTime() / 1000;
                     var different = currenttime - timepro;
                     var obj = {
-                        textcontents: contenttext,
-                        image: imageurl,
-                        like: nblike,
-                        comment: nbcomment
+                        
+                            textcontents: contenttext,
+                            image: imageurl,
+                            like: nblike,
+                            comment: nbcomment
+                       
                     }
-                    if (different <= 259200) {
+                    arr.push(obj);
 
-                        var compairpost = getlastpostinstagram.findOne({"textcontents":contenttext});
-                        if (compairpost) {
-                            if (compairpost.textcontents == contenttext) {
-                                if (compairpost.like == nblike) {
-                                    console.log("like no update");
-                                } else {
-                                    console.log("like  update ");
-                                    getlastpostinstagram.update({ "textcontents": contenttext }, { $set: { like: nblike } });
-                                }
+                    // if (different == 259200) {
 
-                                if (compairpost.comment == nbcomment) {
-                                    console.log("comment no update");
-                                } else {
-                                    console.log("comment  update ");
-                                    getlastpostinstagram.update({ "textcontents": contenttext }, { $set: { comment: nbcomment } });
-                                }
-                            } else {
-                                getlastpostinstagram.insert(obj);
-                            }
-                        }else {
-                            console.log("collection empty");
-                            getlastpostinstagram.insert(obj);
+                        
+
+
+                    // } else {
+                    //     console.log("more then 2 day");
+                    // }
+
+                }
+                var compairpost = getlastpostinstagram.findOne({"textcontents":contenttext});
+                if (compairpost) {
+                    if (compairpost.textcontents == contenttext) {
+                        if (compairpost.like == nblike) {
+                            console.log("like no update");
+                        } else {
+                            console.log("like  update ");
+                            getlastpostinstagram.update({ "textcontents": contenttext }, { $set: { like: nblike } });
                         }
 
-
+                        if (compairpost.comment == nbcomment) {
+                            console.log("comment no update");
+                        } else {
+                            console.log("comment  update ");
+                            getlastpostinstagram.update({ "textcontents": contenttext }, { $set: { comment: nbcomment } });
+                        }
                     } else {
-                        console.log("more then 2 day");
+                        getlastpostinstagram.insert(obj);
                     }
-
+                }else {
+                    console.log("collection empty");
+                    getlastpostinstagram.insert(arr);
                 }
 
             } else {
@@ -73,5 +80,7 @@ Meteor.methods({
 
 
         }));
+        }
+        
     }
 });

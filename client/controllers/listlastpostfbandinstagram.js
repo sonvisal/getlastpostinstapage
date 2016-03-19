@@ -22,10 +22,14 @@ Template.listlastpost.helpers({
 Template.listlastpost.events({
     "click .getlastpost": function() {
         var url = "https://www.instagram.com/dior/";
-        // var numberlastpost = $(".numberlastpost").val();
-        Meteor.call("getlastpost", url, function(error, data) {
+        var url2 = "https://www.instagram.com/safir/";
+        var url3 = "https://www.instagram.com/google/";
+        var url4 = "https://www.instagram.com/facebook/";
+        var url5 = "https://www.instagram.com/pink/";
+        // console.log(" url "+url2+);
+        Meteor.call("getlastpost", url,url2,url3,url4,url5, function(error, data) {
             if (error) {
-                console.log(error);
+                console.log("Erro function :"+error);
 
             } else {
                 console.log(data);
